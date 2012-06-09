@@ -20,32 +20,31 @@ p.on('end', function () {
 
 ## methods
 
-* play (id) - play a video by id.
-* cue  (id) - cue a video but don't start it.
-* start ()  - start a cued or paused video.
-* stop  ()
-* pause ()
-* length ()  - get the length in seconds. (will return 0 intil metadata is loaded, apparently)
-* seek (seconds)   - move playhead to specific point.
-
-* mute()
-* unMute()
-* isMuted()
-* setVolume(volume) - (out of 100)
-* getVolume()
+* `play(id)`  - play a video by id.
+* `cue(id)`  - cue a video but don't start it.
+* `start()`  - start a cued or paused video.
+* `stop()`
+* `pause()`
+* `length()`  - get the length in seconds. (will return 0 intil metadata is loaded, apparently)
+* `seek(seconds)`  - move playhead to specific point.
+* `mute()`
+* `unMute()`
+* `isMuted()`
+* `setVolume(volume)` - (out of 100)
+* `getVolume()`
 
 ## events
 
-* error - if the video cannot be played for some reason.
-* ready - player is ready for use.
-* play - etc...
-* buffer
-* end
-* cue
+* `'error'` - if the video cannot be played for some reason.
+* `'ready'` - player is ready for use.
+* `'play'` - etc...
+* `'buffer'`
+* `'end'`
+* `'cue'`
 
 ## properties
 
-* player - reference to youtube player object.
+* `player` - reference to youtube player object.
   this has more methods.
 
 see [youtube player api documentation](https://developers.google.com/youtube/js_api_reference)
