@@ -369,7 +369,7 @@ inherits(YouTubePlayer, EventEmitter)
 // initial video?
 */
 
-var states = ['ready', 'ended', 'playing', 'paused', 'buffering', 'cued']
+var states = ['ready', 'end', 'play', 'pause', 'buffer', 'cue']
 
 
 function YouTubePlayer (options) {
@@ -389,11 +389,14 @@ function YouTubePlayer (options) {
       function isReady() {
         if(!self.player.loadVideoById) {
           console.log(state, Object.keys(self.player))
-          process.nextTick(isReady)
+          setTimeout(isReady, 1)
         } else if(!ready) {
           ready = true
           console.log(state, Object.keys(self.player))
           self.emit('ready')
+          console.log(self.waiting)
+          if(self.waiting)
+            self.play.apply(self, (self.waiting))
         } else 
           return true
       }
@@ -401,6 +404,7 @@ function YouTubePlayer (options) {
       if(isReady()) {
         self.emit(state)
         self.emit('change', state)
+
       }
     },
     onError: function (code) {
@@ -423,27 +427,27 @@ function YouTubePlayer (options) {
 }
 
 function map(a, b) {
-  var fn = 'function' == typeof b ? b : function () {
-    
-  }
   YouTubePlayer.prototype[a] = function () {
     var args = [].slice.call(arguments)
+    console.log('Map', this)
     if('function' == typeof b)
       b.apply(this, args)
     else
-      this.player[b].apply(this.player, args)
+      this.player[b].apply(this, args)
   }
 }
 
-map('load', function (id, seconds, quality) {
+map('play', function (id, seconds, quality) {
   var args = [].slice.call(arguments)
+  console.log('p', this)
   if(!this.player)
     this.waiting = args
   else
-    this.player.loadVideoById(id, seconds, quality) 
+    console.log('play', this.player.loadVideoById(id, seconds, quality) )
 })
 
-map('play'    , 'playVideo')
+map('start'    , 'playVideo')
+map('cue'     , 'cueVideoById')
 map('stop'    , 'stopVideo')
 map('pause'   , 'pauseVideo')
 map('clear'   , 'clearVideo')
@@ -463,7 +467,6 @@ window.onYouTubePlayerAPIReady = function () {
   while(waiting.length)
     waiting.shift()()
 } 
-
 
 //this is from http://www.youtube.com/player_api
 //gonna inline it here to save a request.
@@ -985,8 +988,10 @@ p.on('change', function (state) {
   console.log('change', state, Object.keys(p.player))
 })
 
-p.on('ready', function () {
-//  p.play('wusGIl3v044')
+p.play('wusGIl3v044')
+
+p.on('end', function () {
+  console.log('THE END')
 })
 
 

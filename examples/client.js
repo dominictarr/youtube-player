@@ -6,7 +6,9 @@ p.on('change', function (state) {
   console.log('change', state, Object.keys(p.player))
 })
 
-p.on('ready', function () {
-//  p.play('wusGIl3v044')
+p.play('wusGIl3v044')
+
+p.on('end', function () {
+  console.log('THE END')
 })
 
