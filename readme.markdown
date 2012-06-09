@@ -48,5 +48,5 @@ p.on('end', function () {
 * player - reference to youtube player object.
   this has more methods.
 
-see (youtube player api documentation)[https://developers.google.com/youtube/js_api_reference]
+see [youtube player api documentation](https://developers.google.com/youtube/js_api_reference)
 
