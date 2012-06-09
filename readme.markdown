@@ -16,6 +16,8 @@ p.on('end', function () {
   p.load(anotherVideo) //whatever
 })
 
+```
+
 ## methods
 
 * play (id) - play a video by id.
