@@ -1,6 +1,6 @@
 #youtube player
 
-make emdedding a controllable youtube player as painless as possible.
+emdedding a controllable youtube player is now _mostly harmless_.
 
 inherits from `EventEmitter`
 
