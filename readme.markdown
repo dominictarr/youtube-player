@@ -46,6 +46,7 @@ p.on('end', function () {
 
 * `player` - reference to youtube player object.
   this has more methods.
+* `ready` - boolean. current state of the player (calls to play when ready=false are deffered)
 
 see [youtube player api documentation](https://developers.google.com/youtube/js_api_reference)
 
