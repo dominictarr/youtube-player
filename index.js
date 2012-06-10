@@ -86,9 +86,9 @@ function map(a, b) {
 
 map('play', function (id, seconds, quality) {
   var args = [].slice.call(arguments), self = this
-  if(!this.ready) {
+  if(!this.ready)
     this.waiting = args
-  } else
+  else
     this.player.loadVideoById(id, seconds, quality)
 })
 
