@@ -373,7 +373,8 @@ var states = ['ready', 'end', 'play', 'pause', 'buffer', 'cue']
 
 
 function YouTubePlayer (options) {
-  var self = this, player, ready = false
+  var self = this, player
+  this.ready = false
   options.events = {
     onStateChange: function (state) {
       state = states[state.data + 1]
@@ -382,29 +383,30 @@ function YouTubePlayer (options) {
         this is really weird, but the first time that youtube
         emits ready, it's not actually ready.
         it hasn't added all the methods yet.
-        
 
+        I don't know exactly when it will be ready,
+        so I've gotta poll for that.
       */
 
       function isReady() {
+        console.log(Object.keys(self.player))
         if(!self.player.loadVideoById) {
-          console.log(state, Object.keys(self.player))
-          setTimeout(isReady, 1)
-        } else if(!ready) {
-          ready = true
-          console.log(state, Object.keys(self.player))
+          return setTimeout(isReady, 100)
+        }
+
+        if(!self.ready) {
+          self.ready = true
           self.emit('ready')
-          console.log(self.waiting)
           if(self.waiting)
-            self.play.apply(self, (self.waiting))
-        } else 
-          return true
+          self.play.apply(self, self.waiting)
+        }  
+
+        return true        
       }
 
       if(isReady()) {
         self.emit(state)
         self.emit('change', state)
-
       }
     },
     onError: function (code) {
@@ -427,23 +429,27 @@ function YouTubePlayer (options) {
 }
 
 function map(a, b) {
-  YouTubePlayer.prototype[a] = function () {
+  YouTubePlayer.prototype[a] = 
+  'function' == typeof b ? b : function () {
     var args = [].slice.call(arguments)
-    console.log('Map', this)
-    if('function' == typeof b)
-      b.apply(this, args)
-    else
-      this.player[b].apply(this, args)
+    this.player[b].apply(this.player, args)
   }
 }
 
 map('play', function (id, seconds, quality) {
-  var args = [].slice.call(arguments)
+  var args = [].slice.call(arguments), self = this
   console.log('p', this)
-  if(!this.player)
+  if(!this.ready) {
+    console.log('DEFUR', this.waiting)
+/*    if(!this.waiting)
+      this.once('ready', function () {
+        console.log('IS ready')
+        self.waiting = null
+        self.play.apply(self, self.waiting)
+      })*/
     this.waiting = args
-  else
-    console.log('play', this.player.loadVideoById(id, seconds, quality) )
+  } else
+    this.player.loadVideoById(id, seconds, quality)
 })
 
 map('start'    , 'playVideo')
@@ -462,7 +468,6 @@ map('getVolume')
 
 //global listener... sorry. this is youtube.
 window.onYouTubePlayerAPIReady = function () {
-  console.log('api') 
   ready = true
   while(waiting.length)
     waiting.shift()()
@@ -993,7 +998,9 @@ p.play('wusGIl3v044')
 p.on('end', function () {
   console.log('THE END')
 })
-
+p.on('ready', function (state) {
+  console.log('READY')
+})
 
 });
 require("/client.js");
