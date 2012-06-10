@@ -22,7 +22,8 @@ var states = ['ready', 'end', 'play', 'pause', 'buffer', 'cue']
 
 
 function YouTubePlayer (options) {
-  var self = this, player, ready = false
+  var self = this, player
+  this.ready = false
   options.events = {
     onStateChange: function (state) {
       state = states[state.data + 1]
@@ -38,20 +39,22 @@ function YouTubePlayer (options) {
 
       function isReady() {
         if(!self.player.loadVideoById) {
-          setTimeout(isReady, 1)
-        } else if(!ready) {
-          ready = true
+          return setTimeout(isReady, 1)
+        }
+
+        if(!self.ready) {
+          self.ready = true
           self.emit('ready')
           if(self.waiting)
-            self.play.apply(self, self.waiting)
-        } else 
-          return true
+          self.play.apply(self, self.waiting)
+        }  
+
+        return true        
       }
 
       if(isReady()) {
         self.emit(state)
         self.emit('change', state)
-
       }
     },
     onError: function (code) {
@@ -74,23 +77,19 @@ function YouTubePlayer (options) {
 }
 
 function map(a, b) {
-  YouTubePlayer.prototype[a] = function () {
+  YouTubePlayer.prototype[a] = 
+  'function' == typeof b ? b : function () {
     var args = [].slice.call(arguments)
-    console.log('Map', this)
-    if('function' == typeof b)
-      b.apply(this, args)
-    else
-      this.player[b].apply(this, args)
+    this.player[b].apply(this.player, args)
   }
 }
 
 map('play', function (id, seconds, quality) {
-  var args = [].slice.call(arguments)
-  console.log('p', this)
-  if(!this.player)
+  var args = [].slice.call(arguments), self = this
+  if(!this.ready) {
     this.waiting = args
-  else
-    console.log('play', this.player.loadVideoById(id, seconds, quality) )
+  } else
+    this.player.loadVideoById(id, seconds, quality)
 })
 
 map('start'    , 'playVideo')
@@ -109,7 +108,6 @@ map('getVolume')
 
 //global listener... sorry. this is youtube.
 window.onYouTubePlayerAPIReady = function () {
-  console.log('api') 
   ready = true
   while(waiting.length)
     waiting.shift()()
