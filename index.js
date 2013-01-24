@@ -22,7 +22,7 @@ var states = ['ready', 'end', 'play', 'pause', 'buffer', 'cue']
 
 
 function YouTubePlayer (options) {
-  var self = this, player
+  var self = this, player, isPolling
   this.ready = false
   options.events = {
     onStateChange: function (state) {
@@ -37,24 +37,21 @@ function YouTubePlayer (options) {
         so I've gotta poll for that.
       */
 
-      function isReady() {
-        if(!self.player.loadVideoById) {
-          return setTimeout(isReady, 1)
-        }
 
-        if(!self.ready) {
-          self.ready = true
-          self.emit('ready')
-          if(self.waiting)
-          self.play.apply(self, self.waiting)
-        }  
-
-        return true        
+      if (!self.ready && !isPolling) {
+        pollReady()
       }
-
-      if(isReady()) {
-        self.emit(state)
-        self.emit('change', state)
+      self.emit(state)
+      self.emit('change', state)
+    },
+    onReady: function() {
+      /*
+        sometimes only onReady and not the the initial
+        ready onStateChange is fired. so should
+        poll here too
+      */
+      if (!self.ready && !isPolling) {
+        pollReady()
       }
     },
     onError: function (code) {
@@ -66,6 +63,23 @@ function YouTubePlayer (options) {
       })[code]
       self.emit('error', new Error(message))
     }
+  }
+
+  function pollReady() {
+    if(!self.player.loadVideoById) {
+      isPolling = true
+      setTimeout(pollReady, 1)
+      return
+    }
+
+    isPolling = false
+
+    if(!self.ready) {
+      self.ready = true
+      self.emit('ready')
+      if(self.waiting)
+        self.play.apply(self, self.waiting)
+    }  
   }
 
   function create() {
