@@ -132,15 +132,15 @@ window.onYouTubePlayerAPIReady = function () {
 setTimeout(function () {
  if (!YT.Player) {
     (function () {
-      console.log('add script')
       var p = document.location.protocol == 'https:' ? 'https:' : 'http:'
       var s = p + '//s.ytimg.com/yt/jsbin/www-widgetapi-vflCAfh6H.js'
       var a = document.createElement('script')
       a.src = s
       a.async = true
-      var b = document.getElementsByTagName('script')[0]
-      b.parentNode.insertBefore(a, b)
-      YT.embed_template = "\u003ciframe width=\"425\" height=\"344\" src=\"\" frameborder=\"0\" allowfullscreen\u003e\u003c\/iframe\u003e"
+      document.head.insertBefore(a, document.head.firstElementChild)
+      YT.embed_template = 
+        "\u003ciframe width=\"425\" height=\"344\" src=\"\"" + 
+        "frameborder=\"0\" allowfullscreen\u003e\u003c\/iframe\u003e"
     })()
   }
 }, 1)
