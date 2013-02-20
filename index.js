@@ -94,6 +94,7 @@ function map(a, b) {
   YouTubePlayer.prototype[a] = 
   'function' == typeof b ? b : function () {
     var args = [].slice.call(arguments)
+    if('function' === typeof this.player[b])
     this.player[b].apply(this.player, args)
   }
 }
